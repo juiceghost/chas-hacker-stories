@@ -15,21 +15,39 @@ const list = [
     num_comments: 2,
     points: 5,
     objectID: 1,
-  },];
+  }, {
+    title: 'Krillframework',
+    url: 'https://kfw.org/',
+    author: 'Dr Krillzorz',
+    num_comments: 0,
+    points: 400,
+    objectID: 2,
+  }];
 
-function App() {
-
+const App = () => {
+  const handleChange = event => {
+    console.log(event.target.value);
+  }
   return (
     <div>
       <h1>My Hacker Stories</h1>
       <label htmlFor="search">Search: </label>
-      <input id="search" type="text" />
+      <input id="search" type="text" onChange={handleChange} />
       <hr />
-      {list.map(function (item) {
-        return <div key={item.objectID}>{item.title}</div>;
-      })}
-
-
+      <List />
     </div>);
 }
+
+
+const List = () => list.map(item => (
+  <div key={item.objectID}>
+    <span>
+      <a href={item.url}>{item.title}</a>
+    </span>
+    <span>{item.author}</span>
+    <span>{item.num_comments}</span>
+    <span>{item.points}</span>
+  </div>));
+
+
 export default App;
