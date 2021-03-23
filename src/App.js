@@ -4,7 +4,7 @@ const useSemiPersistentState = (key, initialState) => {
   const [value, setValue] = useState(
     localStorage.getItem(key) || initialState
   );
-  
+
   useEffect(() => {
     localStorage.setItem(key, value);
   }, [value]);
@@ -14,6 +14,7 @@ const useSemiPersistentState = (key, initialState) => {
 
 
 const App = () => {
+
   const stories = [
     {
       title: 'React',
@@ -37,13 +38,18 @@ const App = () => {
       points: 400,
       objectID: 2,
     }];
-  
+
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'Redux');
 
   const handleSearch = event => {
     setSearchTerm(event.target.value);
   };
+  // Create a simple text component that renders a string and passes it as children to the
+  // InputWithLabel component.
 
+  const SimpleText = ({ children }) => (
+    <strong>{children}</strong>
+  );
   const searchedStories = stories.filter(story =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -51,34 +57,37 @@ const App = () => {
   return (
     <div>
       <h1>My Hacker Stories</h1>
-      <Search search={searchTerm} onSearch={handleSearch} />
-
+      <InputWithLabel id='search' value={searchTerm} onInputChange={handleSearch}>
+        <SimpleText><div>Search:</div></SimpleText>
+      </InputWithLabel>
       <hr />
       <List list={searchedStories} />
     </div>);
 }
 
-const Search = ({ search, onSearch }) => {
-  return (
-    <div>
-      <label htmlFor="search">Search: </label>
-      <input id="search" type="text" value={search} onChange={onSearch} />
-    </div>
-  );
-};
+
+const InputWithLabel = ({ children, id, value, type = 'text', onInputChange }) => (
+  <>
+    <label htmlFor={id}>{children}</label> &nbsp;
+    <input
+      id={id}
+      type={type} value={value} onChange={onInputChange}
+    />
+  </>
+);
 
 const List = ({ list }) =>
   list.map(item => <Item key={item.objectID} item={item} />);
-  
-  const Item = ({ item }) => (
-    <div>
-      <span>
-        <a href={item.url}>{item.title}</a>
-      </span>
-      <span>{item.author}</span>
-      <span>{item.num_comments}</span>
-      <span>{item.points}</span>
-    </div>
+
+const Item = ({ item }) => (
+  <div>
+    <span>
+      <a href={item.url}>{item.title}</a>
+    </span>
+    <span>{item.author}</span>
+    <span>{item.num_comments}</span>
+    <span>{item.points}</span>
+  </div>
 );
 
 export default App;
