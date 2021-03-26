@@ -1,4 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useReducer } from 'react';
+
+const initialStories = [
+    {
+      title: 'React',
+      url: 'https://reactjs.org/',
+      author: 'Jordan Walke',
+      num_comments: 3,
+      points: 4,
+      objectID: 0,
+    }, {
+      title: 'Redux',
+      url: 'https://redux.js.org/',
+      author: 'Dan Abramov, Andrew Clark',
+      num_comments: 2,
+      points: 5,
+      objectID: 1,
+    }, {
+      title: 'Krillframework',
+      url: 'https://kfw.org/',
+      author: 'Dr Krillzorz',
+      num_comments: 0,
+      points: 400,
+      objectID: 2,
+    }
+];
+
+const getAsyncStories = () =>
+  new Promise(resolve =>
+    setTimeout(
+      () => resolve({ data: { stories: initialStories } }),
+      2000
+    )
+  );
 
 const useSemiPersistentState = (key, initialState) => {
   const [value, setValue] = useState(
@@ -7,7 +40,7 @@ const useSemiPersistentState = (key, initialState) => {
 
   useEffect(() => {
     localStorage.setItem(key, value);
-  }, [value]);
+  }, [value, key]);
 
   return [value, setValue];
 };
@@ -47,51 +80,26 @@ const storiesReducer = (state, action) => {
 
 
 const App = () => {
-
-  const initialStories = [
-    {
-      title: 'React',
-      url: 'https://reactjs.org/',
-      author: 'Jordan Walke',
-      num_comments: 3,
-      points: 4,
-      objectID: 0,
-    }, {
-      title: 'Redux',
-      url: 'https://redux.js.org/',
-      author: 'Dan Abramov, Andrew Clark',
-      num_comments: 2,
-      points: 5,
-      objectID: 1,
-    }, {
-      title: 'Krillframework',
-      url: 'https://kfw.org/',
-      author: 'Dr Krillzorz',
-      num_comments: 0,
-      points: 400,
-      objectID: 2,
-    }];
-
-    const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
-  const [stories, dispatchStories] = React.useReducer(
+  const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
+  
+  const [stories, dispatchStories] = useReducer(
     storiesReducer,
     { data: [], isLoading: false, isError: false }
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
-    new Promise(resolve => 
-      setTimeout(
-        ()=> resolve({data: {stories: initialStories}}),
-        2000
-      )
-    ).then(result => {
-      dispatchStories({
-        type: 'STORIES_FETCH_SUCCESS',
-        payload: result.data.stories,
-      });
-    }).catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' })); 
 
+    getAsyncStories()
+      .then(result => {
+        dispatchStories({
+          type: 'STORIES_FETCH_SUCCESS',
+          payload: result.data.stories,
+        });
+      })
+      .catch(() =>
+        dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
+      );
   }, []);
 
   const handleRemoveStory = item => {
@@ -110,7 +118,7 @@ const App = () => {
   const SimpleText = ({ children }) => (
     <strong>{children}</strong>
   );
-  
+
   const searchedStories = stories.data.filter(story =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -126,7 +134,9 @@ const App = () => {
       >
         <SimpleText><div>Search:</div></SimpleText>
       </InputWithLabel>
+      
       <hr />
+      
       {stories.isError && <p>Something went wrong ...</p>}
       
       {stories.isLoading ? (
@@ -137,14 +147,15 @@ const App = () => {
           onRemoveItem={handleRemoveStory}
         />
       )}
-    </div>);
+    </div>
+  );
 }
 
 
 const InputWithLabel = ({ children, id, value, isFocused, type = 'text', onInputChange }) => {
-  const inputRef = React.useRef();
+  const inputRef = useRef();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isFocused && inputRef.current) {
       inputRef.current.focus();
     }
