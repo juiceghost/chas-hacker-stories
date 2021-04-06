@@ -1,7 +1,16 @@
 import React from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
-
+/* TODO 2021-04-06:
+1. Katalogstruktur teori
+2. Client-side routing & deploy med surge, automatiserad deploy
+3. Egna övningar:
+3a. Läs sid 178-182
+3b. Gör om strukturen enligt Robins förslag
+3c. Se om ni kan deploya med client-side routing på era befintliga webbhotell
+3d. Om nej på ovanstående fråga, använd surge.sh, går att använda med egen domän
+3c. Starta eller fortsätt på eget React-projekt
+*/
 const useSemiPersistentState = (key, initialState) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
