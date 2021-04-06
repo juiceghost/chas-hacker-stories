@@ -1,6 +1,16 @@
 import React from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+
+import About from './About/index';
+import { menuStructure } from './constants';
+
 /* TODO 2021-04-06:
 1. Katalogstruktur teori
 2. Client-side routing & deploy med surge, automatiserad deploy
@@ -11,6 +21,9 @@ import styled from 'styled-components';
 3d. Om nej på ovanstående fråga, använd surge.sh, går att använda med egen domän
 3c. Starta eller fortsätt på eget React-projekt
 */
+
+
+
 const useSemiPersistentState = (key, initialState) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
@@ -208,8 +221,14 @@ const App = () => {
   );
 
   return (
+    <Router>
     <StyledContainer>
-      <StyledHeadlinePrimary>My Hacker Stories</StyledHeadlinePrimary>
+      <Switch>
+      <Route path={menuStructure.about.path}>
+      <About />
+      </Route>
+      <Route path={menuStructure.home.path}>
+      <StyledHeadlinePrimary><Link to={menuStructure.about.path}>My Hacker Stories</Link></StyledHeadlinePrimary>
       
       <SearchForm
         searchTerm={searchTerm}
@@ -227,7 +246,10 @@ const App = () => {
           onRemoveItem={handleRemoveStory}
         />
       )}
+      </Route>
+      </Switch>
     </StyledContainer>
+    </Router>
   );
 }
 
